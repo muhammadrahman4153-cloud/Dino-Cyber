@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBER DINO RUN 🦖</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a2e 50%, #16213e 100%);
+            font-family: 'Rajdhani', sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated background */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 255, 255, 0.03) 2px, rgba(0, 255, 255, 0.03) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255, 0, 255, 0.03) 2px, rgba(255, 0, 255, 0.03) 4px);
+            animation: gridScroll 20s linear infinite;
+        }
+
+        @keyframes gridScroll {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Floating particles */
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: #00ffff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00ffff;
+            animation: float 15s infinite;
+            opacity: 0.6;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            25% { transform: translateY(-100px) translateX(50px); }
+            50% { transform: translateY(-50px) translateX(-50px); }
+            75% { transform: translateY(-150px) translateX(30px); }
+        }
+
+        .game-container {
+            text-align: center;
+            z-index: 10;
+            position: relative;
+        }
+
+        .game-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 48px;
+            font-weight: 900;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 8px;
+            margin-bottom: 10px;
+            text-shadow: 
+                0 0 10px #00ffff,
+                0 0 20px #00ffff,
+                0 0 30px #00ffff,
+                0 0 40px #ff00ff,
+                0 0 70px #ff00ff;
+            animation: titlePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { 
+                text-shadow: 
+                    0 0 10px #00ffff,
+                    0 0 20px #00ffff,
+                    0 0 30px #00ffff,
+                    0 0 40px #ff00ff;
+            }
+            50% { 
+                text-shadow: 
+                    0 0 20px #00ffff,
+                    0 0 30px #00ffff,
+                    0 0 40px #00ffff,
+                    0 0 50px #ff00ff,
+                    0 0 60px #ff00ff;
+            }
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #00ffff;
+            margin-bottom: 20px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            display: inline-block;
+            border-radius: 15px;
+            padding: 3px;
+            background: linear-gradient(45deg, #00ffff, #ff00ff, #00ffff);
+            background-size: 200% 200%;
+            animation: borderGlow 3s ease infinite;
+            box-shadow: 
+                0 0 30px rgba(0, 255, 255, 0.5),
+                0 0 60px rgba(255, 0, 255, 0.3),
+                inset 0 0 20px rgba(0, 255, 255, 0.1);
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        #gameCanvas {
+            display: block;
+            background: linear-gradient(180deg, #0f0f1e 0%, #1a1a2e 50%, #0a0e27 100%);
+            border-radius: 12px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .stats-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: rgba(10, 14, 39, 0.8);
+            border: 2px solid #00ffff;
+            border-radius: 10px;
+            padding: 15px 30px;
+            min-width: 180px;
+            box-shadow: 
+                0 0 20px rgba(0, 255, 255, 0.3),
+                inset 0 0 20px rgba(0, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 0 30px rgba(0, 255, 255, 0.5),
+                inset 0 0 30px rgba(0, 255, 255, 0.1);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #00ffff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 10px #00ffff;
+        }
+
+        .instructions {
+            margin-top: 20px;
+            color: #ff00ff;
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            animation: blink 2s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 14, 39, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .game-over.show {
+            display: flex;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .game-over-content {
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.9), rgba(10, 14, 39, 0.9));
+            padding: 50px;
+            border-radius: 20px;
+            text-align: center;
+            border: 3px solid #ff00ff;
+            box-shadow: 
+                0 0 50px rgba(255, 0, 255, 0.5),
+                inset 0 0 30px rgba(255, 0, 255, 0.1);
+            animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .game-over h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 48px;
+            color: #ff00ff;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px #ff00ff;
+        }
+
+        .final-score-display {
+            font-size: 24px;
+            color: #00ffff;
+            margin: 20px 0;
+        }
+
+        .final-score-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 64px;
+            color: #fff;
+            font-weight: 900;
+            text-shadow: 0 0 30px #00ffff;
+            display: block;
+            margin: 10px 0;
+        }
+
+        .restart-btn {
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            color: #0a0e27;
+            border: none;
+            padding: 18px 50px;
+            font-size: 20px;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 30px;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .restart-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+            transition: left 0.5s;
+        }
+
+        .restart-btn:hover::before {
+            left: 100%;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 50px rgba(255, 0, 255, 0.8);
+        }
+
+        @media (max-width: 900px) {
+            .game-title { font-size: 32px; letter-spacing: 4px; }
+            #gameCanvas { width: 100%; height: auto; }
+            .stat-box { min-width: 140px; padding: 10px 20px; }
+            .stat-value { font-size: 24px; }
+        }
+
+        .character-selector {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(10, 14, 39, 0.6);
+            border-radius: 15px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .selector-title {
+            font-size: 16px;
+            color: #00ffff;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .character-options {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .char-btn {
+            background: rgba(26, 26, 46, 0.8);
+            border: 2px solid #535353;
+            border-radius: 10px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Rajdhani', sans-serif;
+            color: #aaa;
+            min-width: 120px;
+        }
+
+        .char-btn:hover {
+            transform: translateY(-3px);
+            border-color: #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .char-btn.active {
+            border-color: #00ffff;
+            background: rgba(0, 255, 255, 0.1);
+            color: #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+        }
+
+        .char-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .char-preview {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .char-btn div:last-child {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating particles -->
+    <script>
+        for(let i = 0; i < 20; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+            document.body.appendChild(particle);
+        }
+    </script>
+
+    <div class="game-container">
+        <h1 class="game-title">CYBER DINO</h1>
+        <p class="subtitle">Neon Runner 2026</p>
+        
+        <div class="canvas-wrapper">
+            <canvas id="gameCanvas" width="900" height="400"></canvas>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-box">
+                <div class="stat-label">Score</div>
+                <div class="stat-value" id="score">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">High Score</div>
+                <div class="stat-value" id="highScore">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Level</div>
+                <div class="stat-value" id="level">1</div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            [ SPASI / KLIK / TAP untuk Melompat ]
+        </div>
+
+        <div class="character-selector">
+            <div class="selector-title">Pilih Karakter:</div>
+            <div class="character-options">
+                <button class="char-btn active" onclick="selectCharacter('dino')" id="char-dino">
+                    <div class="char-preview">🦖</div>
+                    <div>Cyber Dino</div>
+                </button>
+                <button class="char-btn" onclick="selectCharacter('robot')" id="char-robot">
+                    <div class="char-preview">🤖</div>
+                    <div>Neon Robot</div>
+                </button>
+                <button class="char-btn" onclick="selectCharacter('spaceship')" id="char-spaceship">
+                    <div class="char-preview">🚀</div>
+                    <div>Cyber Ship</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-over" id="gameOver">
+        <div class="game-over-content">
+            <h2>Game Over</h2>
+            <div class="final-score-display">
+                Final Score
+                <span class="final-score-value" id="finalScore">0</span>
+            </div>
+            <button class="restart-btn" onclick="restartGame()">
+                <span style="position: relative; z-index: 1;">Play Again</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Game variables
+        let score = 0;
+        let highScore = localStorage.getItem('cyberDinoHighScore') || 0;
+        let level = 1;
+        let gameSpeed = 4;
+        let gravity = 0.6;
+        let isGameOver = false;
+        let frameCount = 0;
+        let particles = [];
+        let currentCharacter = 'dino';
+        let gameStarted = false; // Track if game has started
+
+        // Update displays
+        document.getElementById('highScore').textContent = highScore;
+
+        // Particle effect class
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = Math.random() * 4 - 2;
+                this.speedY = Math.random() * 4 - 2;
+                this.color = color;
+                this.life = 1;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life -= 0.02;
+                this.size *= 0.97;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // Enhanced Dino with cyberpunk style
+        const dino = {
+            x: 100,
+            y: 335, // Adjusted to sit properly on ground (400 - 65)
+            width: 50,
+            height: 65,
+            dy: 0,
+            jumpPower: -12,
+            isJumping: false,
+            
+            draw() {
+                if (currentCharacter === 'dino') {
+                    this.drawDino();
+                } else if (currentCharacter === 'robot') {
+                    this.drawRobot();
+                } else if (currentCharacter === 'spaceship') {
+                    this.drawSpaceship();
+                }
+            },
+            
+            drawDino() {
+                // Glow effect
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = '#00ffff';
+                
+                // Body (main)
+                const gradient = ctx.createLinearGradient(this.x, this.y, this.x + this.width, this.y + this.height);
+                gradient.addColorStop(0, '#00ffff');
+                gradient.addColorStop(0.5, '#0099ff');
+                gradient.addColorStop(1, '#0066ff');
+                ctx.fillStyle = gradient;
+                
+                // Body shape
+                ctx.fillRect(this.x + 10, this.y + 10, this.width - 10, this.height - 25);
+                
+                // Head
+                ctx.fillRect(this.x + 30, this.y, 25, 25);
+                
+                // Eye (glowing)
+                ctx.fillStyle = '#ff00ff';
+                ctx.shadowColor = '#ff00ff';
+                ctx.shadowBlur = 15;
+                ctx.fillRect(this.x + 42, this.y + 8, 8, 8);
+                
+                // Neck detail
+                ctx.strokeStyle = '#ff00ff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(this.x + 30, this.y + 15);
+                ctx.lineTo(this.x + 20, this.y + 20);
+                ctx.stroke();
+                
+                // Tail (animated with glow)
+                ctx.shadowColor = '#00ffff';
+                ctx.strokeStyle = '#00ffff';
+                ctx.lineWidth = 3;
+                const tailWave = Math.sin(frameCount * 0.3) * 5;
+                ctx.beginPath();
+                ctx.moveTo(this.x + 10, this.y + 30);
+                ctx.quadraticCurveTo(
+                    this.x - 20 + tailWave, 
+                    this.y + 20, 
+                    this.x - 30, 
+                    this.y + 40 + tailWave
+                );
+                ctx.stroke();
+                
+                // Legs (animated) - properly touching ground
+                ctx.fillStyle = '#00ffff';
+                ctx.shadowBlur = 10;
+                const legAnim = Math.floor(frameCount / 8) % 2;
+                
+                if (this.isJumping) {
+                    // Legs together when jumping
+                    ctx.fillRect(this.x + 20, this.y + 50, 8, 15);
+                    ctx.fillRect(this.x + 30, this.y + 50, 8, 15);
+                } else {
+                    // Animated running legs
+                    if (legAnim === 0) {
+                        ctx.fillRect(this.x + 15, this.y + 50, 8, 15);
+                        ctx.fillRect(this.x + 30, this.y + 55, 8, 10);
+                    } else {
+                        ctx.fillRect(this.x + 15, this.y + 55, 8, 10);
+                        ctx.fillRect(this.x + 30, this.y + 50, 8, 15);
+                    }
+                }
+                
+                // Spikes on back (cyberpunk)
+                ctx.fillStyle = '#ff00ff';
+                for(let i = 0; i < 3; i++) {
+                    ctx.beginPath();
+                    ctx.moveTo(this.x + 15 + i * 10, this.y + 10);
+                    ctx.lineTo(this.x + 18 + i * 10, this.y);
+                    ctx.lineTo(this.x + 21 + i * 10, this.y + 10);
+                    ctx.fill();
+                }
+                
+                ctx.shadowBlur = 0;
+            },
+
+            drawRobot() {
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = '#ff00ff';
+                
+                const gradient = ctx.createLinearGradient(this.x, this.y, this.x + this.width, this.y + this.height);
+                gradient.addColorStop(0, '#ff00ff');
+                gradient.addColorStop(0.5, '#ff0088');
+                gradient.addColorStop(1, '#ff00ff');
+                ctx.fillStyle = gradient;
+                
+                // Body
+                ctx.fillRect(this.x + 10, this.y + 15, 35, 35);
+                
+                // Head
+                ctx.fillRect(this.x + 15, this.y, 25, 20);
+                
+                // Antenna
+                ctx.strokeStyle = '#00ffff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(this.x + 27, this.y);
+                ctx.lineTo(this.x + 27, this.y - 8);
+                ctx.stroke();
+                ctx.fillStyle = '#00ffff';
+                ctx.beginPath();
+                ctx.arc(this.x + 27, this.y - 8, 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Eyes
+                ctx.fillStyle = '#00ffff';
+                ctx.shadowColor = '#00ffff';
+                ctx.fillRect(this.x + 20, this.y + 7, 6, 6);
+                ctx.fillRect(this.x + 32, this.y + 7, 6, 6);
+                
+                // Chest panel
+                ctx.fillStyle = '#00ffff';
+                ctx.fillRect(this.x + 20, this.y + 25, 15, 15);
+                
+                // Legs (animated)
+                ctx.fillStyle = '#ff00ff';
+                ctx.shadowBlur = 10;
+                const legAnim = Math.floor(frameCount / 8) % 2;
+                
+                if (this.isJumping) {
+                    ctx.fillRect(this.x + 17, this.y + 50, 10, 15);
+                    ctx.fillRect(this.x + 30, this.y + 50, 10, 15);
+                } else {
+                    if (legAnim === 0) {
+                        ctx.fillRect(this.x + 17, this.y + 50, 10, 15);
+                        ctx.fillRect(this.x + 30, this.y + 55, 10, 10);
+                    } else {
+                        ctx.fillRect(this.x + 17, this.y + 55, 10, 10);
+                        ctx.fillRect(this.x + 30, this.y + 50, 10, 15);
+                    }
+                }
+                
+                ctx.shadowBlur = 0;
+            },
+
+            drawSpaceship() {
+                ctx.shadowBlur = 25;
+                ctx.shadowColor = '#00ff00';
+                
+                const gradient = ctx.createLinearGradient(this.x, this.y, this.x + this.width, this.y + this.height);
+                gradient.addColorStop(0, '#00ff00');
+                gradient.addColorStop(0.5, '#00ff88');
+                gradient.addColorStop(1, '#00ffaa');
+                ctx.fillStyle = gradient;
+                
+                // Main body
+                ctx.beginPath();
+                ctx.moveTo(this.x + 40, this.y + 10);
+                ctx.lineTo(this.x + 50, this.y + 25);
+                ctx.lineTo(this.x + 45, this.y + 40);
+                ctx.lineTo(this.x + 10, this.y + 40);
+                ctx.lineTo(this.x + 5, this.y + 25);
+                ctx.lineTo(this.x + 15, this.y + 10);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Window
+                ctx.fillStyle = '#00ffff';
+                ctx.shadowColor = '#00ffff';
+                ctx.beginPath();
+                ctx.arc(this.x + 27, this.y + 25, 8, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Wings
+                ctx.fillStyle = '#00ff00';
+                ctx.shadowColor = '#00ff00';
+                ctx.beginPath();
+                ctx.moveTo(this.x + 10, this.y + 30);
+                ctx.lineTo(this.x - 5, this.y + 35);
+                ctx.lineTo(this.x + 10, this.y + 38);
+                ctx.closePath();
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.moveTo(this.x + 45, this.y + 30);
+                ctx.lineTo(this.x + 60, this.y + 35);
+                ctx.lineTo(this.x + 45, this.y + 38);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Engine glow (animated)
+                const enginePulse = Math.sin(frameCount * 0.3) * 0.5 + 0.5;
+                ctx.shadowBlur = 30;
+                ctx.shadowColor = `rgba(255, 100, 0, ${enginePulse})`;
+                ctx.fillStyle = `rgba(255, 150, 0, ${enginePulse})`;
+                
+                if (!this.isJumping) {
+                    // Engine fire
+                    const flameHeight = 10 + Math.random() * 5;
+                    ctx.beginPath();
+                    ctx.moveTo(this.x + 15, this.y + 40);
+                    ctx.lineTo(this.x + 20, this.y + 40 + flameHeight);
+                    ctx.lineTo(this.x + 25, this.y + 40);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(this.x + 30, this.y + 40);
+                    ctx.lineTo(this.x + 35, this.y + 40 + flameHeight);
+                    ctx.lineTo(this.x + 40, this.y + 40);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+                
+                ctx.shadowBlur = 0;
+            },
+            
+            update() {
+                this.dy += gravity;
+                this.y += this.dy;
+                
+                // Ground collision
+                if (this.y > 335) {
+                    this.y = 335;
+                    this.dy = 0;
+                    this.isJumping = false;
+                    
+                    // Landing particles
+                    if (frameCount % 5 === 0) {
+                        for(let i = 0; i < 2; i++) {
+                            particles.push(new Particle(
+                                this.x + this.width / 2 + Math.random() * 20 - 10,
+                                this.y + this.height,
+                                currentCharacter === 'dino' ? '#00ffff' : 
+                                currentCharacter === 'robot' ? '#ff00ff' : '#00ff00'
+                            ));
+                        }
+                    }
+                }
+            },
+            
+            jump() {
+                if (!this.isJumping && !isGameOver) {
+                    this.dy = this.jumpPower;
+                    this.isJumping = true;
+                    
+                    // Jump particles
+                    for(let i = 0; i < 10; i++) {
+                        particles.push(new Particle(
+                            this.x + this.width / 2,
+                            this.y + this.height,
+                            currentCharacter === 'dino' ? (Math.random() > 0.5 ? '#00ffff' : '#ff00ff') :
+                            currentCharacter === 'robot' ? '#ff00ff' : '#00ff00'
+                        ));
+                    }
+                }
+            }
+        };
+
+        // Enhanced obstacles
+        let obstacles = [];
+        
+        class Obstacle {
+            constructor() {
+                this.x = canvas.width + 50;
+                const types = ['spike', 'box', 'laser'];
+                this.type = types[Math.floor(Math.random() * types.length)];
+                
+                if (this.type === 'spike') {
+                    this.width = 30;
+                    this.height = 50 + Math.random() * 30;
+                } else if (this.type === 'box') {
+                    this.width = 40;
+                    this.height = 40 + Math.random() * 20;
+                } else {
+                    this.width = 20;
+                    this.height = 60;
+                }
+                
+                this.y = 400 - this.height;
+                this.passed = false;
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.shadowBlur = 20;
+                
+                if (this.type === 'spike') {
+                    // Animated spike
+                    const gradient = ctx.createLinearGradient(this.x, this.y, this.x, this.y + this.height);
+                    gradient.addColorStop(0, '#ff00ff');
+                    gradient.addColorStop(1, '#ff0080');
+                    ctx.fillStyle = gradient;
+                    ctx.shadowColor = '#ff00ff';
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y + this.height);
+                    ctx.lineTo(this.x + this.width / 2, this.y);
+                    ctx.lineTo(this.x + this.width, this.y + this.height);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    // Inner glow
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    
+                } else if (this.type === 'box') {
+                    // Glowing box
+                    const gradient = ctx.createLinearGradient(this.x, this.y, this.x + this.width, this.y + this.height);
+                    gradient.addColorStop(0, '#00ffff');
+                    gradient.addColorStop(1, '#0088ff');
+                    ctx.fillStyle = gradient;
+                    ctx.shadowColor = '#00ffff';
+                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                    
+                    // Grid pattern
+                    ctx.strokeStyle = '#ff00ff';
+                    ctx.lineWidth = 1;
+                    for(let i = 0; i < this.width; i += 10) {
+                        ctx.beginPath();
+                        ctx.moveTo(this.x + i, this.y);
+                        ctx.lineTo(this.x + i, this.y + this.height);
+                        ctx.stroke();
+                    }
+                    
+                } else {
+                    // Laser beam
+                    const pulseIntensity = Math.sin(frameCount * 0.3) * 0.3 + 0.7;
+                    ctx.shadowColor = `rgba(255, 0, 255, ${pulseIntensity})`;
+                    ctx.shadowBlur = 30;
+                    
+                    const gradient = ctx.createLinearGradient(this.x, this.y, this.x + this.width, this.y + this.height);
+                    gradient.addColorStop(0, '#ff00ff');
+                    gradient.addColorStop(0.5, '#ff0080');
+                    gradient.addColorStop(1, '#ff00ff');
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                    
+                    // Core
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(this.x + 7, this.y, 6, this.height);
+                }
+                
+                ctx.restore();
+            }
+            
+            update() {
+                this.x -= gameSpeed;
+                
+                // Emit particles
+                if (frameCount % 3 === 0) {
+                    particles.push(new Particle(
+                        this.x,
+                        this.y + Math.random() * this.height,
+                        this.type === 'spike' ? '#ff00ff' : '#00ffff'
+                    ));
+                }
+                
+                if (!this.passed && this.x + this.width < dino.x) {
+                    this.passed = true;
+                    score += 10;
+                    document.getElementById('score').textContent = score;
+                    
+                    // Speed increase every obstacle passed
+                    gameSpeed += 0.5;
+                    
+                    // Speed increase particles (mini effect)
+                    for(let i = 0; i < 5; i++) {
+                        particles.push(new Particle(
+                            dino.x + dino.width,
+                            dino.y + Math.random() * dino.height,
+                            Math.random() > 0.5 ? '#00ffff' : '#ff00ff'
+                        ));
+                    }
+                    
+                    // Level up every 100 points
+                    if (score % 100 === 0) {
+                        level = Math.floor(score / 100) + 1;
+                        document.getElementById('level').textContent = level;
+                        
+                        // Level up particles (big effect)
+                        for(let i = 0; i < 30; i++) {
+                            particles.push(new Particle(
+                                canvas.width / 2 + Math.random() * 200 - 100,
+                                200 + Math.random() * 100,
+                                Math.random() > 0.5 ? '#00ffff' : '#ff00ff'
+                            ));
+                        }
+                    }
+                }
+            }
+        }
+
+        // Collectible power-ups
+        let powerups = [];
+        
+        class PowerUp {
+            constructor() {
+                this.x = canvas.width + 50;
+                this.y = 200 + Math.random() * 100;
+                this.size = 20;
+                this.rotation = 0;
+                this.collected = false;
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.translate(this.x + this.size / 2, this.y + this.size / 2);
+                ctx.rotate(this.rotation);
+                
+                ctx.shadowBlur = 30;
+                ctx.shadowColor = '#ffff00';
+                
+                // Star shape
+                ctx.fillStyle = '#ffff00';
+                ctx.beginPath();
+                for(let i = 0; i < 5; i++) {
+                    const angle = (i * 4 * Math.PI) / 5 - Math.PI / 2;
+                    const x = Math.cos(angle) * this.size;
+                    const y = Math.sin(angle) * this.size;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.closePath();
+                ctx.fill();
+                
+                ctx.restore();
+            }
+            
+            update() {
+                this.x -= gameSpeed;
+                this.rotation += 0.1;
+                
+                // Check collection
+                if (!this.collected && 
+                    this.x < dino.x + dino.width &&
+                    this.x + this.size > dino.x &&
+                    this.y < dino.y + dino.height &&
+                    this.y + this.size > dino.y) {
+                    this.collected = true;
+                    score += 50;
+                    document.getElementById('score').textContent = score;
+                    
+                    // Collection particles
+                    for(let i = 0; i < 20; i++) {
+                        particles.push(new Particle(
+                            this.x + this.size / 2,
+                            this.y + this.size / 2,
+                            '#ffff00'
+                        ));
+                    }
+                }
+            }
+        }
+
+        // Background stars
+        let stars = [];
+        for(let i = 0; i < 100; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 2,
+                speed: Math.random() * 2 + 1
+            });
+        }
+
+        // Collision detection
+        function checkCollision(dino, obstacle) {
+            return dino.x < obstacle.x + obstacle.width - 10 &&
+                   dino.x + dino.width - 10 > obstacle.x &&
+                   dino.y < obstacle.y + obstacle.height - 10 &&
+                   dino.y + dino.height - 10 > obstacle.y;
+        }
+
+        // Spawn obstacles
+        function spawnObstacle() {
+            const spawnRate = Math.max(120 - level * 10, 60);
+            if (frameCount % spawnRate === 0) {
+                obstacles.push(new Obstacle());
+            }
+        }
+
+        // Spawn powerups
+        function spawnPowerUp() {
+            if (frameCount % 300 === 0 && Math.random() > 0.5) {
+                powerups.push(new PowerUp());
+            }
+        }
+
+        // Draw ground
+        function drawGround() {
+            // Grid lines
+            ctx.strokeStyle = '#00ffff';
+            ctx.lineWidth = 1;
+            ctx.globalAlpha = 0.3;
+            
+            // Horizontal lines
+            for(let i = 0; i < 5; i++) {
+                ctx.beginPath();
+                ctx.moveTo(0, 400 - i * 20);
+                ctx.lineTo(canvas.width, 400 - i * 20);
+                ctx.stroke();
+            }
+            
+            // Vertical lines (moving)
+            const offset = (frameCount * gameSpeed) % 40;
+            for(let i = 0; i < canvas.width / 40 + 1; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * 40 - offset, 300);
+                ctx.lineTo(i * 40 - offset, 400);
+                ctx.stroke();
+            }
+            
+            ctx.globalAlpha = 1;
+            
+            // Main ground line
+            ctx.strokeStyle = '#ff00ff';
+            ctx.lineWidth = 3;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = '#ff00ff';
+            ctx.beginPath();
+            ctx.moveTo(0, 400);
+            ctx.lineTo(canvas.width, 400);
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+        }
+
+        // Game loop
+        function gameLoop() {
+            if (isGameOver) return;
+            
+            frameCount++;
+            
+            // Disable character selection once game starts
+            if (gameStarted) {
+                document.querySelectorAll('.char-btn').forEach(btn => {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.5';
+                    btn.style.cursor = 'not-allowed';
+                });
+            }
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw animated stars
+            stars.forEach(star => {
+                star.x -= star.speed;
+                if (star.x < 0) star.x = canvas.width;
+                
+                ctx.fillStyle = '#ffffff';
+                ctx.globalAlpha = Math.random() * 0.5 + 0.5;
+                ctx.fillRect(star.x, star.y, star.size, star.size);
+            });
+            ctx.globalAlpha = 1;
+            
+            // Draw ground
+            drawGround();
+            
+            // Update and draw particles
+            particles = particles.filter(p => p.life > 0);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            
+            // Update and draw dino
+            dino.update();
+            dino.draw();
+            
+            // Spawn and update obstacles
+            spawnObstacle();
+            obstacles.forEach((obstacle, index) => {
+                obstacle.update();
+                obstacle.draw();
+                
+                if (checkCollision(dino, obstacle)) {
+                    gameOver();
+                }
+                
+                if (obstacle.x + obstacle.width < 0) {
+                    obstacles.splice(index, 1);
+                }
+            });
+            
+            // Spawn and update powerups
+            spawnPowerUp();
+            powerups = powerups.filter(p => !p.collected && p.x > -50);
+            powerups.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Game over
+        function gameOver() {
+            isGameOver = true;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOver').classList.add('show');
+            
+            // Explosion particles
+            for(let i = 0; i < 50; i++) {
+                particles.push(new Particle(
+                    dino.x + dino.width / 2,
+                    dino.y + dino.height / 2,
+                    Math.random() > 0.5 ? '#ff00ff' : '#00ffff'
+                ));
+            }
+            
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('cyberDinoHighScore', highScore);
+                document.getElementById('highScore').textContent = highScore;
+            }
+        }
+
+        // Restart game
+        function restartGame() {
+            isGameOver = false;
+            gameStarted = false;
+            score = 0;
+            level = 1;
+            gameSpeed = 4;
+            frameCount = 0;
+            obstacles = [];
+            powerups = [];
+            particles = [];
+            dino.y = 335;
+            dino.dy = 0;
+            dino.isJumping = false;
+            document.getElementById('score').textContent = score;
+            document.getElementById('level').textContent = level;
+            document.getElementById('gameOver').classList.remove('show');
+            
+            // Re-enable character selection
+            document.querySelectorAll('.char-btn').forEach(btn => {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
+            });
+            
+            gameLoop();
+        }
+
+        // Character selection (only before game starts)
+        function selectCharacter(char) {
+            if (!gameStarted && !isGameOver) {
+                currentCharacter = char;
+                
+                // Update active button
+                document.querySelectorAll('.char-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.getElementById('char-' + char).classList.add('active');
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (!gameStarted && !isGameOver) {
+                    gameStarted = true;
+                }
+                dino.jump();
+            }
+        });
+
+        canvas.addEventListener('click', () => {
+            if (!isGameOver) {
+                if (!gameStarted) {
+                    gameStarted = true;
+                }
+                dino.jump();
+            }
+        });
+
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (!isGameOver) {
+                if (!gameStarted) {
+                    gameStarted = true;
+                }
+                dino.jump();
+            }
+        });
+
+        // Start game
+        gameLoop();
+    </script>
+</body>
+</html>
